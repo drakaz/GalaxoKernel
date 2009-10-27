@@ -1,0 +1,43 @@
+# bcm94315sdg board
+# $Copyright (C) 2003 Broadcom Corporation$
+# $Id: bcm94315sdg.txt,v 1.1.28.2 2008/09/04 21:44:05 jqliu Exp $
+boardtype=0x04c8
+boardnum=${serno}
+# Board revision 2.2
+boardrev=0x22
+boardflags=0x02000a00
+sromrev=3
+
+# On board crystal frequency in KHz
+xtalfreq=30000
+
+
+# Its a 2.4Ghz only board
+wl0id=0x4314
+
+# 4315 802.11g parameters
+il0macaddr=00:90:4c:ff:${maclo}
+aa0=3
+ag0=2
+pa0maxpwr=76
+pa0itssit=62
+pa0b0=0x1689
+pa0b1=0xfa88
+pa0b2=0xfea4
+opo=10
+bxa2g=1
+rssismf2g=0
+rssismc2g=11
+rssisav2g=3
+tri2g=78
+rxpo2g=0xfff8
+parefldovoltage=0x28
+
+# Commons wireless parameters
+wl0gpio0=255
+wl0gpio1=255
+wl0gpio2=255
+wl0gpio3=255
+cctl=0
+ccode=0
+

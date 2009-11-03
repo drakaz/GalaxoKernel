@@ -96,7 +96,12 @@ void *MSM_KERNEL_PANIC_DUMP_ADDR;
 #define SMI64_MSM_PMEM_ADSP_SIZE 	0x00D00000		// 13M-->7M from IF4 => 8M for MPEG4 Play 480*360 ==> 13M for safety
 
 #define SMI64_MSM_PMEM_CAMERA_BASE	0x03500000
-#define SMI64_MSM_PMEM_CAMERA_SIZE	0x00B00000		// 11M
+#define SMI64_MSM_PMEM_CAMERA_SIZE	0x00A00000		// kam187 & drakaz : 10M is enough (11 by default)
+
+// kam187 & drakaz : move FB to SMI64 to keep 1Mb for system ram
+#define SMI64_MSM_PMEM_FB_BASE	0x03900000
+#define SMI64_MSM_PMEM_FB_SIZE	0x00100000
+
 #endif
 
 #define MSM_PMEM_MDP_SIZE	0x800000
@@ -104,6 +109,11 @@ void *MSM_KERNEL_PANIC_DUMP_ADDR;
 #define MSM_PMEM_ADSP_SIZE	0xd00000
 #define MSM_PMEM_GPU1_SIZE	0x800000
 #define MSM_FB_SIZE		0x100000					// 1M is enough for Orion Project
+
+
+/* kam187 & drakaz : override define if GPU1 is deactivate */ 
+
+
 
 #define SENSOR_SCL	2
 #define SENSOR_SDA	3
@@ -692,7 +702,10 @@ static struct platform_device *devices[] __initdata = {
 #ifdef CONFIG_MSM_STACKED_MEMORY
 	&android_pmem_gpu0_device,
 #endif
+// kam187 & drakaz : deactivate GPU1 if define in config
+#ifndef CONFIG_GPU1_DEACTIVE
 	&android_pmem_gpu1_device,
+#endif
 	&msm_device_hsusb_otg,
 	&msm_device_hsusb_host,
 #if defined(CONFIG_USB_FUNCTION) || defined(CONFIG_USB_ANDROID)
@@ -1658,21 +1671,33 @@ static void __init msm_allocate_memory_regions(void)
 	android_pmem_adsp_pdata.size = size;
 	printk(KERN_INFO "allocating %lu bytes at %p (%lx physical)"
 	       "for adsp pmem\n", size, addr, __pa(addr));
+
 #endif
-
-	size = MSM_PMEM_GPU1_SIZE;
-	addr = alloc_bootmem_aligned(size, 0x100000);
-	android_pmem_gpu1_pdata.start = __pa(addr);
-	android_pmem_gpu1_pdata.size = size;
-	printk(KERN_INFO "allocating %lu bytes at %p (%lx physical)"
-	       "for gpu1 pmem\n", size, addr, __pa(addr));
-
+/* kam187 & drakaz : move FB to SMI64
 	size = MSM_FB_SIZE;
 	addr = alloc_bootmem(size);
 	msm_fb_resources[0].start = __pa(addr);
 	msm_fb_resources[0].end = msm_fb_resources[0].start + size - 1;
 	printk(KERN_INFO "allocating %lu bytes at %p (%lx physical) for fb\n",
 			size, addr, __pa(addr));
+*/
+	size = SMI64_MSM_PMEM_FB_SIZE;
+	addr = SMI64_MSM_PMEM_FB_BASE;
+	msm_fb_resources[0].start = addr;
+	msm_fb_resources[0].end = msm_fb_resources[0].start + size - 1;
+	printk(KERN_INFO "allocating %lu bytes of SMI at %lx physical for fb\n",size, addr);
+
+
+#ifndef CONFIG_GPU1_DEACTIVE
+	size = MSM_PMEM_GPU1_SIZE;
+	addr = alloc_bootmem_aligned(size, 0x100000);
+	android_pmem_gpu1_pdata.start = __pa(addr);
+	android_pmem_gpu1_pdata.size = size;
+	printk(KERN_INFO "allocating %lu bytes at %p (%lx physical)"
+	       "for gpu1 pmem\n", size, addr, __pa(addr));
+#endif
+
+// end kam187 & drakaz
 
 }
 

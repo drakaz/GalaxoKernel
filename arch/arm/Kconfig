@@ -918,6 +918,12 @@ config ALIGNMENT_TRAP
 	  correct operation of some network protocols. With an IP-only
 	  configuration it is safe to say N, otherwise say Y.
 
+config GPU1_DEACTIVE
+	bool "Desactivate GPU1 - Save 8Mb for system"
+	default n
+	help
+          Disables GPU1 to add 8MB of RAM to the system. 3d games do not work anymore.
+
 endmenu
 
 menu "Boot options"
